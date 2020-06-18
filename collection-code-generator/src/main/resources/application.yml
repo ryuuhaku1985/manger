@@ -1,0 +1,20 @@
+server:
+  port: 9080
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://xx:61859/jdxl_account?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: xx
+    password: xx
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  resources:
+    static-locations: classpath:/static/,classpath:/views/
+
+# Mybatis配置
+mybatis:
+  mapperLocations: classpath:mapper/**/*.xml
+

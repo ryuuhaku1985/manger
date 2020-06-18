@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <contextName>common-manage-platform</contextName>
+    <!-- 定义日志的根目录 -->
+    <property name="LOG_HOME" value="/data/logs" />
+    <!-- 定义日志文件名称 -->
+    <property name="APP_NAME" value="platform-admin"/>
+
+    <!-- 开发、测试环境 -->
+    <springProfile name="dev,test,ms,sharding">
+
+        <logger name="org.springframework" level="ERROR"/>
+        <logger name="com.jdxl" level="DEBUG" />
+        <logger name="com.baomidou" level="DEBUG" />
+        <logger name="io.shardingjdbc" level="INFO" />
+        <logger name="org.mybatis" level="INFO" />
+        <logger name="org.quartz" level="ERROR" />
+        <logger name="springfox" level="ERROR" />
+
+        <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%msg%n</Pattern>
+            </layout>
+        </appender>
+        <!--<root level="INFO">-->
+        <!--<appender-ref ref="STDOUT" />-->
+        <!--</root>-->
+    </springProfile>
+
+    <!-- 生产环境 -->
+    <springProfile name="prod">
+        <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <File>${LOG_HOME}/${APP_NAME}/info.log</File>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_HOME}/${APP_NAME}/info-%d{yyyyMMdd}.log.%i</fileNamePattern>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>500MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxHistory>10</maxHistory>
+            </rollingPolicy>
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%msg%n</Pattern>
+            </layout>
+        </appender>
+
+        <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
+        <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>ERROR</level>
+            </filter>
+            <File>${LOG_HOME}/${APP_NAME}/error.log</File>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--
+                滚动时产生的文件的存放位置及文件名称 %d{yyyy-MM-dd}：按天进行日志滚动
+                %i：当文件大小超过maxFileSize时，按照i进行文件滚动
+                -->
+                <fileNamePattern>${LOG_HOME}/${APP_NAME}/error-%d{yyyyMMdd}.log.%i</fileNamePattern>
+                <!--
+                当日志文件超过maxFileSize指定的大小是，根据上面提到的%i进行日志文件滚动 注意此处配置SizeBasedTriggeringPolicy是无法实现按文件大小进行滚动的，必须配置timeBasedFileNamingAndTriggeringPolicy
+                -->
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>500MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <!--
+                可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件。假设设置每天滚动，
+                且maxHistory是10，则只保存最近10天的文件，删除之前的旧文件。注意，删除旧文件是，
+                那些为了归档而创建的目录也会被删除。
+                -->
+                <maxHistory>10</maxHistory>
+            </rollingPolicy>
+            <!--
+            日志输出格式：%d表示日期时间，%thread表示线程名，%-5level：级别从左显示5个字符宽度
+            %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 %msg：日志消息，%n是换行符
+            -->
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%msg%n</Pattern>
+            </layout>
+        </appender>
+
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="com.baomidou" level="INFO" />
+        <logger name="com.jdxl" level="INFO" />
+        <logger name="io.shardingjdbc" level="INFO" />
+        <logger name="org.mybatis" level="WARN" />
+        <logger name="org.quartz" level="WARN" />
+        <logger name="springfox" level="WARN" />
+
+        <root level="INFO">
+            <appender-ref ref="INFO_FILE" />
+            <appender-ref ref="ERROR_FILE" />
+        </root>
+    </springProfile>
+
+</configuration>
